@@ -20,17 +20,17 @@ class Engine2048:
         gridUp = Grid.clone()
         gridDown = Grid.clone()
 
-        gridLeft.move_left(put_rand=False)
-        gridRight.move_right(put_rand=False)
-        gridUp.move_up(put_rand=False)
-        gridDown.move_down(put_rand=False)
+        gridLeft.move_left(put_rand=True)
+        gridRight.move_right(put_rand=True)
+        gridUp.move_up(put_rand=True)
+        gridDown.move_down(put_rand=True)
 
         return [gridLeft, gridRight,gridUp,gridDown]
 
 
     def heuristic_score(self, G: Grid2048):
-        return G.largest_in_lower_left_score()
-        
+        return G.largest_in_upper_left_corner()
+
 
     def alphabeta(self, G: Grid2048, depth: int, alpha, beta, maximizing: bool):
         if depth == 0:
