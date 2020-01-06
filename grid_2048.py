@@ -43,15 +43,14 @@ class Grid2048:
             for j in range(4):
                 G.grid[i][j] = self.grid[i][j]
 
-        score = 0
         if move == EMove.LEFT:
-            score = G.move_left(put_rand=False)
+            G.move_left(put_rand=False)
         if move == EMove.RIGHT:
-            score = G.move_right(put_rand=False)
+            G.move_right(put_rand=False)
         if move == EMove.DOWN:
-            score = G.move_down(put_rand=False)
+            G.move_down(put_rand=False)
         if move == EMove.UP:
-            score = G.move_up(put_rand=False)
+            G.move_up(put_rand=False)
 
         canMove = False
 
@@ -62,6 +61,17 @@ class Grid2048:
                     break
 
         return canMove
+
+
+    def move_dir(self, dir):
+        if dir == EMove.LEFT:
+            self.move_left(put_rand=False)
+        elif dir == EMove.UP:
+            self.move_up(put_rand=False)
+        elif dir == EMove.DOWN:
+            self.move_down(put_rand=False)
+        elif dir == EMove.RIGHT:
+            self.move_right(put_rand=False)
 
 
     def move(self, row):
@@ -277,6 +287,36 @@ class Grid2048:
                     score -= 10
 
         return score
+
+    def number_of_empty(self):
+        score = 0
+
+        for i in range(4):
+            for j in range(4):
+                if self.grid[i][j] == 0:
+                    score += 1
+
+        return score
+
+    
+    def twos_in_first(self):
+        number_of_twos = 0
+
+        for i in range(4):
+            if self.grid[i][0] == 2:
+                number_of_twos += 1
+
+        return number_of_twos
+
+
+    def twos_in_second(self):
+        number_of_twos = 0
+
+        for i in range(4):
+            if self.grid[i][1] == 2:
+                number_of_twos += 1
+
+        return number_of_twos
 
 
     def smoothness_score(self):
