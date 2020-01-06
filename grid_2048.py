@@ -1,5 +1,6 @@
 import numpy as np
 from Move import EMove
+import math
 
 class Grid2048:
     """
@@ -531,3 +532,22 @@ class Grid2048:
 
 
         return clust_score
+
+
+
+
+    def compute_score(self):
+        score = 0
+
+        for i in range(4):
+            for j in range(4):
+                if self.grid[i][j] > 4:
+
+                    value = self.grid[i][j]
+                    n = int(math.log(value, 2))
+                    score += value * (n - 1);
+
+        return score
+
+
+                    

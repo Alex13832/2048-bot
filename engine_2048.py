@@ -29,10 +29,10 @@ class Engine2048:
 
 
     def heuristic_score(self, G: Grid2048):
-        ls = max(1, G.lastScore)
+        ls = max(1, G.compute_score())
         cs = G.clustering_score()
 
-        score = ls + math.log(ls) * G.number_of_empty() - cs - G.number_of_2s_and_4s()
+        score = ls + math.log(ls) * G.number_of_empty() - cs + 10*G.largest_in_upper_left_corner()
         return max(score, min(ls, 1))
 
     def heuristic_score_weighted(self, G: Grid2048):
@@ -54,8 +54,8 @@ class Engine2048:
 
     def alphabeta(self, G: Grid2048, depth: int, alpha, beta, maximizing: bool):
         if depth == 0:
-            return self.heuristic_score(G)
-            #return self.heuristic_score_weighted(G)
+            #return self.heuristic_score(G)
+            return self.heuristic_score_weighted(G)
 
         if maximizing:
             v = -math.inf

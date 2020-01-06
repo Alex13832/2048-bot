@@ -103,9 +103,29 @@ class WebEngine2048:
             print(best_score, best_move)
 
             time_to_sleep = 0.1
-   
-            self.move_web_grid(best_move)
-            time.sleep(time_to_sleep)
+
+            if not G.can_move(best_move):
+
+                if G.can_move(EMove.UP):
+                    self.move_web_grid(EMove.UP)
+                    time.sleep(time_to_sleep)
+
+                elif G.can_move(EMove.DOWN):
+                    self.move_web_grid(EMove.DOWN)
+                    time.sleep(time_to_sleep)
+
+                elif G.can_move(EMove.LEFT):
+                    self.move_web_grid(EMove.LEFT)
+                    time.sleep(time_to_sleep)
+
+                elif G.can_move(EMove.RIGHT):
+                    self.move_web_grid(EMove.RIGHT)
+                    time.sleep(time_to_sleep)
+
+
+            else:
+                self.move_web_grid(best_move)
+                time.sleep(time_to_sleep)
 
 
 
