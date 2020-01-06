@@ -1,5 +1,4 @@
 from engine_2048 import *
-from grid_2048 import *
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
