@@ -96,7 +96,7 @@ class WebEngine2048:
                 print(row)
             print("")
 
-            best_score = self.engine2049.alphabeta(G.clone(), 6, -math.inf, math.inf, True)
+            best_score = self.engine2049.alphabeta(G.clone(), 7, -math.inf, math.inf, True)
             best_move = self.engine2049.bestMove
             
             print("Result #######################")
@@ -106,15 +106,7 @@ class WebEngine2048:
 
             if not G.can_move(best_move):
 
-                if G.can_move(EMove.UP):
-                    self.move_web_grid(EMove.UP)
-                    time.sleep(time_to_sleep)
-
-                elif G.can_move(EMove.DOWN):
-                    self.move_web_grid(EMove.DOWN)
-                    time.sleep(time_to_sleep)
-
-                elif G.can_move(EMove.LEFT):
+                if G.can_move(EMove.LEFT):
                     self.move_web_grid(EMove.LEFT)
                     time.sleep(time_to_sleep)
 
@@ -122,6 +114,10 @@ class WebEngine2048:
                     self.move_web_grid(EMove.RIGHT)
                     time.sleep(time_to_sleep)
 
+
+                elif G.can_move(EMove.UP):
+                    self.move_web_grid(EMove.UP)
+                    time.sleep(time_to_sleep)
 
             else:
                 self.move_web_grid(best_move)
