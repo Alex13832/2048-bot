@@ -1,9 +1,8 @@
-from grid_2048 import Grid2048
-from enum import Enum
 import math
-import numpy as np
-from Move import EMove, LinkedMove
 import random
+
+from move import EMove, LinkedMove
+from grid_2048 import Grid2048
 
 
 class Engine2048:
@@ -11,8 +10,6 @@ class Engine2048:
     def __init__(self):
         self.bestMove = EMove.LEFT
         self.linked_move = None
-        self.actualScore = 0
-        self.G = None
 
         w1 = [[1 << 15, 1 << 14, 1 << 13, 1 < 12],
               [1 << 8, 1 << 9, 1 << 10, 1 << 11],
@@ -56,113 +53,52 @@ class Engine2048:
 
         self.weights = [w1, w2, w3, w4, w5, w6, w7, w8]
 
-    def move_board_all_directions(self, Grid: Grid2048):
-        """
-        Moves the Grid in all directions
-        """
-        gridLeft = Grid.clone()
-        gridRight = Grid.clone()
-        gridUp = Grid.clone()
-        gridDown = Grid.clone()
-
-        gridLeft.move_left(put_rand=False)
-        gridRight.move_right(put_rand=False)
-        gridUp.move_up(put_rand=False)
-        gridDown.move_down(put_rand=False)
-
-        return [gridLeft, gridUp, gridRight, gridDown]
-
-    def heuristic_score(self, G: Grid2048):
-        ls = max(1, G.compute_score())
-        cs = G.clustering_score()
-
-        score = ls + math.log(ls) * G.number_of_empty() - cs + 10 * G.largest_in_upper_left_corner()
-        return max(score, min(ls, 1))
-
     def heuristic_score_weighted(self, G: Grid2048):
-
+        """
+        Computes the heuristic score for the input grid.
+        :param G: input grid.
+        :return: score.
+        """
         max_score = -math.inf
 
         for weights in self.weights:
+            score = sum([weights[i][j] * G.grid[i][j] for i in range(4) for j in range(4)])
+            max_score = max(max_score, score)
 
-            score = 0
-            for i in range(4):
-                for j in range(4):
-                    score += weights[i][j] * G.grid[i][j]
-
-                    if score > max_score:
-                        max_score = score
-
+        # Divide the score by 2^13
         return max_score / (1 << 13)
 
-    def alphabeta(self, G: Grid2048, depth: int, alpha, beta, maximizing: bool):
+    def alphabeta_prob(self, game: Grid2048, move: LinkedMove, depth: int, alpha, beta, maximizing: bool):
+        """
+        Mini-max algorithm with alpha-beta pruning.
+        Maximize-step: Find best move of left, right, up and down, update if local score is better than known best.
+        Minimize-step: Insert random two or four. P(2) = 0.8, P(4) = 1.0 - P(2) = 0.2.
+        :param game: Grid.
+        :param move: tracked moves.
+        :param depth: search depth.
+        :param alpha:
+        :param beta:
+        :param maximizing:
+        :return: best score.
+        """
         if depth == 0:
-            return self.heuristic_score_weighted(G)
+            return self.heuristic_score_weighted(game)
 
         if maximizing:
             v = -math.inf
 
             # Move all directions and insert random values
             for direction in [EMove.UP, EMove.LEFT, EMove.RIGHT, EMove.DOWN]:
-                if not G.can_move(direction):
+                if not game.can_move(direction):
                     continue
 
-                GG = G.clone()
-                GG.move_dir(dir=direction)
+                game_cloned = game.clone()
+                game_cloned.move_dir(direction=direction)
 
-                v = max(v, self.alphabeta(GG, depth - 1, alpha, beta, False))
-
-                if v > alpha:
-                    self.bestMove = direction
-
-                alpha = max(v, alpha)
-
-                if beta <= alpha:
-                    break
-
-            return v
-
-        else:
-            v = math.inf
-
-            empty_cells = G.get_empty_cells()
-            opponent_moves = [2, 4]
-
-            for ec in empty_cells:
-                x, y = ec
-                for om in opponent_moves:
-                    GG = G.clone()
-                    GG.insert(x, y, om)
-
-                    v = min(v, self.alphabeta(GG, depth - 1, alpha, beta, True))
-
-                    beta = min(v, beta)
-
-                    if beta <= alpha:
-                        break
-
-            return v
-
-    def alphabeta2(self, G: Grid2048, move: LinkedMove, depth: int, alpha, beta, maximizing: bool):
-        if depth == 0:
-            return self.heuristic_score_weighted(G)
-
-        if maximizing:
-            v = -math.inf
-
-            # Move all directions and insert random values
-            for direction in [EMove.UP, EMove.LEFT, EMove.RIGHT, EMove.DOWN]:
-                if not G.can_move(direction):
-                    continue
-
-                GG = G.clone()
-                GG.move_dir(dir=direction)
-
-                lmove = LinkedMove()
-                lmove.my_move = direction
+                lmove = LinkedMove(direction, move)
                 lmove.pre_move = move
 
-                v = max(v, self.alphabeta2(GG, lmove, depth - 1, alpha, beta, False))
+                v = max(v, self.alphabeta_prob(game_cloned, lmove, depth - 1, alpha, beta, False))
 
                 if v > alpha:
                     self.bestMove = direction
@@ -177,24 +113,23 @@ class Engine2048:
 
         else:
             v = math.inf
-            empty_cells = G.get_empty_cells()
+            empty_cells = game.get_empty_cells()
 
             for ec in empty_cells:
                 x, y = ec
 
+                # Insert random two or four, two is more probable.
                 val = 2
                 if random.uniform(0.0, 1.0) > 0.8:
                     val = 4
 
-                GG = G.clone()
-                GG.insert(x, y, val)
+                game_cloned = game.clone()
+                game_cloned.insert(x, y, val)
 
-                v = min(v, self.alphabeta2(GG, move, depth - 1, alpha, beta, True))
-
+                v = min(v, self.alphabeta_prob(game_cloned, move, depth - 1, alpha, beta, True))
                 beta = min(v, beta)
 
                 if beta <= alpha:
                     break
 
             return v
-

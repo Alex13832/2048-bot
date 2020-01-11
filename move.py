@@ -16,6 +16,6 @@ class LinkedMove:
     This is for backtracking the moves made.
     """
 
-    def __init__(self):
-        self.my_move = EMove.CONTINUE
-        self.pre_move = None
+    def __init__(self, my_move, pre_move):
+        self.my_move = my_move
+        self.pre_move = pre_move
