@@ -1,9 +1,8 @@
-from grid_2048 import Grid2048
-from enum import Enum
 import math
-import numpy as np
-from Move import EMove, LinkedMove
 import random
+
+from Move import EMove, LinkedMove
+from grid_2048 import Grid2048
 
 
 class Engine2048:
@@ -55,29 +54,6 @@ class Engine2048:
               [1 << 3, 1 << 4, 1 << 11, 1 << 12]]
 
         self.weights = [w1, w2, w3, w4, w5, w6, w7, w8]
-
-    def move_board_all_directions(self, Grid: Grid2048):
-        """
-        Moves the Grid in all directions
-        """
-        gridLeft = Grid.clone()
-        gridRight = Grid.clone()
-        gridUp = Grid.clone()
-        gridDown = Grid.clone()
-
-        gridLeft.move_left(put_rand=False)
-        gridRight.move_right(put_rand=False)
-        gridUp.move_up(put_rand=False)
-        gridDown.move_down(put_rand=False)
-
-        return [gridLeft, gridUp, gridRight, gridDown]
-
-    def heuristic_score(self, G: Grid2048):
-        ls = max(1, G.compute_score())
-        cs = G.clustering_score()
-
-        score = ls + math.log(ls) * G.number_of_empty() - cs + 10 * G.largest_in_upper_left_corner()
-        return max(score, min(ls, 1))
 
     def heuristic_score_weighted(self, G: Grid2048):
 
@@ -143,7 +119,7 @@ class Engine2048:
 
             return v
 
-    def alphabeta2(self, G: Grid2048, move: LinkedMove, depth: int, alpha, beta, maximizing: bool):
+    def alphabeta_prob(self, G: Grid2048, move: LinkedMove, depth: int, alpha, beta, maximizing: bool):
         if depth == 0:
             return self.heuristic_score_weighted(G)
 
@@ -158,11 +134,9 @@ class Engine2048:
                 GG = G.clone()
                 GG.move_dir(dir=direction)
 
-                lmove = LinkedMove()
-                lmove.my_move = direction
-                lmove.pre_move = move
+                lmove = LinkedMove(direction, move)
 
-                v = max(v, self.alphabeta2(GG, lmove, depth - 1, alpha, beta, False))
+                v = max(v, self.alphabeta_prob(GG, lmove, depth - 1, alpha, beta, False))
 
                 if v > alpha:
                     self.bestMove = direction
@@ -189,7 +163,7 @@ class Engine2048:
                 GG = G.clone()
                 GG.insert(x, y, val)
 
-                v = min(v, self.alphabeta2(GG, move, depth - 1, alpha, beta, True))
+                v = min(v, self.alphabeta_prob(GG, move, depth - 1, alpha, beta, True))
 
                 beta = min(v, beta)
 
