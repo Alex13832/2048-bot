@@ -84,7 +84,7 @@ class Engine2048:
                     continue
 
                 GG = G.clone()
-                GG.move_dir(dir=direction)
+                GG.move_dir(direction=direction)
 
                 v = max(v, self.alphabeta(GG, depth - 1, alpha, beta, False))
 
@@ -132,7 +132,7 @@ class Engine2048:
                     continue
 
                 GG = G.clone()
-                GG.move_dir(dir=direction)
+                GG.move_dir(direction=direction)
 
                 lmove = LinkedMove(direction, move)
 
