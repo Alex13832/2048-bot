@@ -33,7 +33,7 @@ class WebEngine2048:
         except:
             pass
 
-        game = Grid2048(grid=[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+        game = Grid2048()
 
         range_str = ["1", "2", "3", "4"]
 
@@ -81,7 +81,7 @@ class WebEngine2048:
         game in the next direction.
         :return:
         """
-        nbr_runs = 1
+        nbr_runs = 5
         wins, scores = [], []
 
         for i in range(nbr_runs):
@@ -101,7 +101,7 @@ class WebEngine2048:
 
                 time.sleep(0.1)
 
-                print("///////////////////////////////////// Iteration ", i)
+                print("///////////////////////////////////// Iteration ", i, G.has_won())
 
                 lmove = LinkedMove(EMove.CONTINUE, None)
                 self.engine2048.alphabeta_prob(G.clone(), lmove, 3, -math.inf, math.inf, True)
