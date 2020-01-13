@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
 from engine_2048 import *
+from move import *
 
 
 class WebEngine2048:
@@ -33,7 +34,7 @@ class WebEngine2048:
         except:
             pass
 
-        game = Grid2048(grid=[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+        game = Grid2048()
 
         range_str = ["1", "2", "3", "4"]
 
@@ -89,7 +90,6 @@ class WebEngine2048:
             while True:
                 G = self.parse_web_content()
                 self.engine2048.bestMove = None
-                self.engine2048.G = G
 
                 if not self.has_won_flag:
                     if G.has_won():
@@ -101,10 +101,12 @@ class WebEngine2048:
 
                 time.sleep(0.1)
 
-                print("///////////////////////////////////// Iteration ", i)
+                print("///////////////////////////////////// Iteration", i, " Score", self.actual_score)
 
                 lmove = LinkedMove(EMove.CONTINUE, None)
                 self.engine2048.alphabeta_prob(G.clone(), lmove, 3, -math.inf, math.inf, True)
+                #self.engine2048.expecti(G.clone(), lmove, 3, True)
+                #best_move = self.engine2048.get_best_move_expecti(G, 5)
                 best_move = self.engine2048.bestMove
 
                 bmove = self.engine2048.linked_move

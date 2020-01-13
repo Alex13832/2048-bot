@@ -8,7 +8,9 @@ class Grid2048:
     2048 game board. Contains methods for moving the grid left, right, up and down.
     """
 
-    def __init__(self, grid):
+    def __init__(self, grid=None):
+        if grid is None:
+            grid = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         self.grid = grid
         self.last_score = 0
         self.moved = None
