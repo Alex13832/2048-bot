@@ -55,29 +55,17 @@ class Engine2048:
 
         self.weights = [w1, w2, w3, w4, w5, w6, w7, w8]
 
-    def heuristic_score_weighted(self, G: Grid2048):
+    def heuristic_score_weighted(self, grid: Grid2048):
 
         max_score = -math.inf
 
         for weights in self.weights:
 
-            score = 0
-            for i in range(4):
-                for j in range(4):
-                    score += weights[i][j] * G.grid[i][j]
-
-                    if score > max_score:
-                        max_score = score
+            score = sum([weights[i][j] * grid.grid[i][j] for i in range(4) for j in range(4)])
+            if score > max_score:
+                max_score = score
 
         return max_score / (1 << 13)
-
-    def heuristic_score_corner(self, G: Grid2048):
-        w = [[6, 5, 4, 3],
-             [5, 4, 3, 2],
-             [4, 3, 2, 1],
-             [3, 2, 1, 0]]
-
-        return sum([w[i][j] * G.grid[i][j] for i in range(4) for j in range(4)])
 
     def best_move_alpha_beta(self, grid: Grid2048, depth: int):
         lmove = LinkedMove(EMove.CONTINUE, None)
@@ -144,18 +132,22 @@ class Engine2048:
 
             return v
 
-    def best_move_expecti(self, G: Grid2048, depth: int):
+    def best_move_expectimax(self, grid: Grid2048, depth: int):
+        """
+        Returns the best move according to expectimax algorithm.
+        """
         best_score = -math.inf
         best_move = None
 
         for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
-            if not G.can_move(direction):
+            # Skip direction if not possible to move in this direction.
+            if not grid.can_move(direction):
                 continue
 
-            GG = G.clone()
-            GG.move_dir(direction)
-
-            score = self.expecti(GG, depth - 1, False)
+            grid_clone = grid.clone()
+            grid_clone.move_dir(direction)
+            # Get expectimax score for this move.
+            score = self.__expectimax(grid_clone, depth - 1, False)
 
             if score > best_score:
                 best_score = score
@@ -163,21 +155,25 @@ class Engine2048:
 
         return best_move
 
-    def expecti(self, G: Grid2048, depth: int, player: bool):
+    def __expectimax(self, grid: Grid2048, depth: int, player: bool):
+        """
+        Expectimax algorithm
+        """
         if depth == 0:
-            return self.heuristic_score_weighted(G)
+            return self.heuristic_score_weighted(grid)
 
         if player:
             best_score = -math.inf
 
             # Move all directions and insert random values
             for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
-                if not G.can_move(direction):
+                # Skip if not possible.
+                if not grid.can_move(direction):
                     continue
 
-                newGrid = G.clone()
-                newGrid.move_dir(direction)
-                score = self.expecti(newGrid, depth - 1, False)
+                grid_clone = grid.clone()
+                grid_clone.move_dir(direction)
+                score = self.__expectimax(grid_clone, depth - 1, False)
 
                 if score > best_score:
                     best_score = score
@@ -186,20 +182,22 @@ class Engine2048:
 
         else:
             score = 0
-            empty_cells = G.get_empty_cells()
+            empty_cells = grid.get_empty_cells()
             size = len(empty_cells)
 
-            for (x, y) in G.get_empty_cells():
-                newGrid = G.clone()
-                newGrid.insert(x, y, 2)
-                temp_score = 0.9 * self.expecti(newGrid, depth - 1, True)
+            for (x, y) in grid.get_empty_cells():
+                # Insert a two.
+                grid_clone = grid.clone()
+                grid_clone.insert(x, y, 2)
+                temp_score = 0.9 * self.__expectimax(grid_clone, depth - 1, True)
 
                 if temp_score > 0:
                     score += temp_score
 
-                newGrid = G.clone()
-                newGrid.insert(x, y, 4)
-                temp_score = 0.1 * self.expecti(newGrid, depth - 1, True)
+                # Insert a four.
+                grid_clone = grid.clone()
+                grid_clone.insert(x, y, 4)
+                temp_score = 0.1 * self.__expectimax(grid_clone, depth - 1, True)
 
                 if temp_score > 0:
                     score += temp_score
