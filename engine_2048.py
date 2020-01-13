@@ -11,6 +11,7 @@ class Engine2048:
         self.bestMove = EMove.LEFT
         self.linked_move = None
         self.actualScore = 0
+        self.best_score = -math.inf
 
         w1 = [[1 << 15, 1 << 14, 1 << 13, 1 << 12],
               [1 << 8, 1 << 9, 1 << 10, 1 << 11],
@@ -147,13 +148,14 @@ class Engine2048:
         best_score = -math.inf
         best_move = None
 
-        for direction in [EMove.UP, EMove.LEFT, EMove.RIGHT, EMove.DOWN]:
+        for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
             if not G.can_move(direction):
                 continue
 
             GG = G.clone()
+            GG.move_dir(direction)
 
-            score = self.expecti(GG, depth - 1, board=True)
+            score = self.expecti(GG, depth - 1, False)
 
             if score > best_score:
                 best_score = score
@@ -161,36 +163,45 @@ class Engine2048:
 
         return best_move
 
-    def expecti(self, G: Grid2048, depth: int, board: bool):
+    def expecti(self, G: Grid2048, depth: int, player: bool):
         if depth == 0:
             return self.heuristic_score_weighted(G)
 
-        if not board:
-            score = 0
-
-            for cell in G.get_empty_cells():
-                newGrid = G.clone()
-                x, y = cell
-                newGrid.insert(x, y, 2)
-                score += 0.9 * self.expecti(G, depth - 1, board)
-
-                newGrid = G.clone()
-                newGrid.insert(x, y, 4)
-                score += 0.1 * self.expecti(G, depth - 1, board)
-
-            return score / max(len(G.get_empty_cells()), 1)
-
-        else:
-            score = 0
-            bestScore = -math.inf
+        if player:
+            best_score = -math.inf
 
             # Move all directions and insert random values
-            for direction in [EMove.UP, EMove.LEFT, EMove.RIGHT, EMove.DOWN]:
+            for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
                 if not G.can_move(direction):
                     continue
 
-                GG = G.clone()
-                GG.move_dir(direction)
-                score = max(score, self.expecti(GG, depth - 1, not board))
+                newGrid = G.clone()
+                newGrid.move_dir(direction)
+                score = self.expecti(newGrid, depth - 1, False)
 
-            return score
+                if score > best_score:
+                    best_score = score
+
+            return best_score
+
+        else:
+            score = 0
+            empty_cells = G.get_empty_cells()
+            size = len(empty_cells)
+
+            for (x, y) in G.get_empty_cells():
+                newGrid = G.clone()
+                newGrid.insert(x, y, 2)
+                temp_score = 0.9 * self.expecti(newGrid, depth - 1, True)
+
+                if temp_score > 0:
+                    score += temp_score
+
+                newGrid = G.clone()
+                newGrid.insert(x, y, 4)
+                temp_score = 0.1 * self.expecti(newGrid, depth - 1, True)
+
+                if temp_score > 0:
+                    score += temp_score
+
+            return score / max(size, 1)
