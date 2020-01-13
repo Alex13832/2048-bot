@@ -25,18 +25,12 @@ class Grid2048:
     def insert(self, x, y, val):
         """
         Inserts a value in the grid.
-        :param x: x-pos
-        :param y: y-pos
-        :param val: value to insert.
-        :return:
         """
         self.grid[x][y] = val
 
     def can_move(self, move):
         """
         Computes if the grid can be moved in the desired input direction.
-        :param move: desired direction.
-        :return: if the grid can be moved.
         """
         game = self.clone()
 
@@ -56,8 +50,6 @@ class Grid2048:
     def move_dir(self, direction):
         """
         Moves the grid in the desired direction.
-        :param direction: direction.
-        :return:
         """
         if direction == EMove.LEFT:
             self.move_left()
@@ -73,8 +65,6 @@ class Grid2048:
         """
         Moves the entries in the row so adjacent numbers of power of 2 adds up.
         Returns a new row and the score.
-        :param row: row to move.
-        :return:
         """
         # row1 = list(filter(lambda a: a != 0, row))
         row1 = [x for x in row if x != 0]
