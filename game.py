@@ -27,7 +27,6 @@ class Game2048:
     def parse_web_content(self):
         """
         Parses the 2048 game in the Web-browser.
-        :return: parsed game.
         """
         # Parse the current score
         try:
@@ -63,8 +62,6 @@ class Game2048:
     def move_web_grid(self, move: EMove):
         """
         Moves the game in the web browser.
-        :param move: Left, Right, Up or Down.
-        :return:
         """
         if move == EMove.LEFT:
             self.htmlElem.send_keys(Keys.LEFT)
@@ -82,7 +79,6 @@ class Game2048:
         """
         Gets the parsed game and then runs the AI to get best move that will be used to move the
         game in the next direction.
-        :return:
         """
         wins, scores = [], []
 

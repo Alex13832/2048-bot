@@ -193,14 +193,12 @@ class Grid2048:
     def get_empty_cells(self):
         """
         Returns the empty cells in the grid.
-        :return:
         """
         return [(i, j) for i in range(4) for j in range(4) if self.grid[i][j] == 0]
 
     def has_won(self):
         """
         Finds if the game has reached 2048 or higher.
-        :return:
         """
         return 2048 in [2048 for i in range(4) for j in range(4) if self.grid[i][j] >= 2048]
 
@@ -208,7 +206,6 @@ class Grid2048:
     def compute_score(self):
         """
         Computes the current score.
-        :return:
         """
         values = [self.grid[i][j] for i in range(4) for j in range(4)]
         scores = [value * (math.log(value, 2) - 1) for value in values if value > 0]
