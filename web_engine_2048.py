@@ -104,7 +104,8 @@ class WebEngine2048:
                 print("///////////////////////////////////// Iteration", i, " Score", self.actual_score)
 
                 # best_move = self.engine2048.best_move_alpha_beta(G, 5)
-                best_move = self.engine2048.best_move_expectimax(G, 4)
+                best_move = self.engine2048.best_move_alphabeta(G, 4)
+                # best_move = self.engine2048.best_move_expectimax(G, 4)
 
                 self.move_web_grid(best_move)
                 time.sleep(0.2)
