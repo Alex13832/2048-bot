@@ -3,7 +3,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from engine_2048 import *
+from ai import *
 from move import *
 
 

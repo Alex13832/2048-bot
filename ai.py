@@ -2,7 +2,7 @@ import math
 import random
 
 from move import *
-from grid_2048 import Grid2048
+from grid import Grid2048
 
 
 class Engine2048:
