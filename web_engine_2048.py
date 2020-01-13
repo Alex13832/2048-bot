@@ -103,25 +103,10 @@ class WebEngine2048:
 
                 print("///////////////////////////////////// Iteration", i, " Score", self.actual_score)
 
-                lmove = LinkedMove(EMove.CONTINUE, None)
-                self.engine2048.alphabeta_prob(G.clone(), lmove, 3, -math.inf, math.inf, True)
-                #self.engine2048.expecti(G.clone(), lmove, 3, True)
-                #best_move = self.engine2048.get_best_move_expecti(G, 5)
-                best_move = self.engine2048.bestMove
+                best_move = self.engine2048.best_move_alpha_beta(G, 5)
 
-                bmove = self.engine2048.linked_move
-                m = EMove.CONTINUE
-
-                while bmove.pre_move is not None:
-                    m = bmove.my_move
-                    bmove = bmove.pre_move
-
-                print(m, best_move)
-                if m != best_move:
-                    print("XXXXXXXXXXXXXXXXXXXXXXX")
-
-                self.move_web_grid(m)
-                time.sleep(0.1)
+                self.move_web_grid(best_move)
+                time.sleep(0.2)
 
                 if best_move is None:
                     break

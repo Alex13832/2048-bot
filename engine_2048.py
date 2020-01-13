@@ -70,70 +70,25 @@ class Engine2048:
 
         return max_score / (1 << 13)
 
-    def best_move_alpha_beta(self, G: Grid2048, depth: int):
-        best_score = -math.inf
-        best_move = None
+    def heuristic_score_corner(self, G: Grid2048):
+        w = [[6, 5, 4, 3],
+             [5, 4, 3, 2],
+             [4, 3, 2, 1],
+             [3, 2, 1, 0]]
 
-        for direction in [EMove.UP, EMove.LEFT, EMove.RIGHT, EMove.DOWN]:
-            if not G.can_move(direction):
-                continue
+        return sum([w[i][j] * G.grid[i][j] for i in range(4) for j in range(4)])
 
-            GG = G.clone()
+    def best_move_alpha_beta(self, grid: Grid2048, depth: int):
+        lmove = LinkedMove(EMove.CONTINUE, None)
+        self.alphabeta_prob(grid.clone(), lmove, depth, -math.inf, math.inf, True)
 
-            score = self.alphabeta(GG, depth - 1, -math.inf, math.inf, True)
+        m = EMove.CONTINUE
 
-            if score > best_score:
-                best_score = score
-                best_move = direction
+        while self.linked_move.pre_move is not None:
+            m = self.linked_move.my_move
+            self.linked_move = self.linked_move.pre_move
 
-        return best_move
-
-    def alphabeta(self, G: Grid2048, depth: int, alpha, beta, maximizing: bool):
-        if depth == 0:
-            return self.heuristic_score_weighted(G)
-
-        if maximizing:
-            v = -math.inf
-
-            # Move all directions and insert random values
-            for direction in [EMove.UP, EMove.LEFT, EMove.RIGHT, EMove.DOWN]:
-                if not G.can_move(direction):
-                    continue
-
-                GG = G.clone()
-                GG.move_dir(direction=direction)
-
-                v = max(v, self.alphabeta(GG, depth - 1, alpha, beta, False))
-
-                alpha = max(v, alpha)
-
-                if alpha >= beta:
-                    break
-
-            return v
-
-        else:
-            v = math.inf
-            empty_cells = G.get_empty_cells()
-
-            for ec in empty_cells:
-                x, y = ec
-
-                val = 2
-                if random.uniform(0.0, 1.0) > 0.9:
-                    val = 4
-
-                GG = G.clone()
-                GG.insert(x, y, val)
-
-                v = min(v, self.alphabeta(GG, depth - 1, alpha, beta, True))
-
-                beta = min(v, beta)
-
-                if alpha >= beta:
-                    break
-
-            return v
+        return m
 
     def alphabeta_prob(self, G: Grid2048, move: LinkedMove, depth: int, alpha, beta, maximizing: bool):
         if depth == 0:
