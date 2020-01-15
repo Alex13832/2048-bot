@@ -210,3 +210,16 @@ class Grid2048:
         values = [self.grid[i][j] for i in range(4) for j in range(4)]
         scores = [value * (math.log(value, 2) - 1) for value in values if value > 0]
         return sum(scores)
+
+    def parse_tiles(self, tiles: dict, limit=1024):
+        """
+        Gets the scores in each tile and updates the tiles-dict.
+        """
+        for i in range(4):
+            for j in range(4):
+                tile = self.grid[i][j]
+
+                if tile >= limit:
+                    tiles[tile] = 1
+
+        return tiles

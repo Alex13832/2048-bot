@@ -23,6 +23,7 @@ class Game2048:
         self.engine2048 = Engine2048()
         self.actual_score = 0
         self.has_won_flag = False
+        self.tile_scores = []
 
     def parse_web_content(self):
         """
@@ -75,7 +76,7 @@ class Game2048:
         if move == EMove.DOWN:
             self.htmlElem.send_keys(Keys.DOWN)
 
-    def run(self, nbr_runs: int, algorithm: Algorithm):
+    def run(self, nbr_runs: int, algorithm: Algorithm, heuristic: HeuristicScore):
         """
         Gets the parsed game and then runs the AI to get best move that will be used to move the
         game in the next direction.
@@ -83,6 +84,8 @@ class Game2048:
         wins, scores = [], []
 
         for i in range(nbr_runs):
+
+            tiles = {}
 
             while True:
                 G = self.parse_web_content()
@@ -104,13 +107,15 @@ class Game2048:
                 best_move = None
 
                 if algorithm is Algorithm.ALPHABETA:
-                    best_move = self.engine2048.best_move_alphabeta(G, 4)
+                    best_move = self.engine2048.best_move_alphabeta(G, heuristic)
 
                 elif algorithm is Algorithm.EXPECTIMAX:
-                    best_move = self.engine2048.best_move_expectimax(G, 4)
+                    best_move = self.engine2048.best_move_expectimax(G, heuristic)
 
                 self.move_web_grid(best_move)
-                time.sleep(0.2)
+                tiles = G.parse_tiles(tiles)
+
+                time.sleep(0.1)
 
                 if best_move is None:
                     break
@@ -118,6 +123,7 @@ class Game2048:
             # ////////////////////////// STATS /////////////////////////////////
             scores.append(self.actual_score)
             self.actual_score = 0
+            self.tile_scores.append(tiles)
 
             # ////////////////////////// NEW GAME //////////////////////////////
             if i < nbr_runs:
@@ -135,13 +141,22 @@ class Game2048:
         print("Scores", scores)
         print("Wins", wins)
 
+        for i in range(nbr_runs):
+            print("Run ", i, self.tile_scores[i])
+
 
 """ MAIN PROGRAM --------------------------------- """
 
 
 def main():
     game = Game2048()
-    game.run(nbr_runs=10, algorithm=Algorithm.EXPECTIMAX)
+    runs = 1
+    # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.CORNER)
+    # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.CORNERS)
+    # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.SNAKE)
+    game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNER)
+    # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNERS)
+    # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.SNAKE)
 
 
 if __name__ == '__main__':

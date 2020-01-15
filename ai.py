@@ -5,6 +5,12 @@ from move import *
 from grid import Grid2048
 
 
+class HeuristicScore(Enum):
+    CORNER = 1,
+    CORNERS = 2,
+    SNAKE = 3
+
+
 class Engine2048:
 
     def __init__(self):
@@ -55,7 +61,48 @@ class Engine2048:
 
         self.weights = [w1, w2, w3, w4, w5, w6, w7, w8]
 
-    def heuristic_score_weighted(self, grid: Grid2048):
+    @staticmethod
+    def __heuristic_score_corner(grid: Grid2048):
+        weight = [[6, 5, 4, 3],
+                  [5, 4, 3, 2],
+                  [4, 3, 2, 1],
+                  [3, 2, 1, 0]]
+
+        return sum([weight[i][j] * grid.grid[i][j] for i in range(4) for j in range(4)])
+
+    @staticmethod
+    def __heuristic_score_corners(grid: Grid2048):
+        w1 = [[0, 1, 2, 4],
+              [-1, 0, 1, 2],
+              [-2, -1, 0, 1],
+              [-4, -2, -1, 0]]
+
+        w2 = [[4, 2, 1, 0],
+              [2, 1, 0, -1],
+              [1, 0, -1, -2],
+              [0, -1, -2, -4]]
+
+        w3 = [[0, -1, -2, -4],
+              [1, 0, -1, -2, ],
+              [2, 1, 0, -1],
+              [4, 2, 1, 0]]
+
+        w4 = [[-4, -2, -1, 0],
+              [-2, -1, 0, 1],
+              [-1, 0, 1, 2],
+              [0, 1, 2, 4]]
+
+        best_score = -math.inf
+
+        for w in [w1, w2, w3, w4]:
+            score = sum([w[i][j] * grid.grid[i][j] for i in range(4) for j in range(4)])
+
+            if score > best_score:
+                best_score = score
+
+        return best_score
+
+    def __heuristic_score_snake(self, grid: Grid2048):
         """
         Returns the heuristic score fot the input grid.
         """
@@ -68,12 +115,26 @@ class Engine2048:
 
         return max_score / (1 << 13)
 
-    def best_move_alphabeta(self, grid: Grid2048, depth: int):
+    def __heuristic_score(self, grid: Grid2048, heuristic: HeuristicScore):
+        if heuristic == HeuristicScore.CORNER:
+            return self.__heuristic_score_corner(grid)
+
+        if heuristic == HeuristicScore.CORNERS:
+            return self.__heuristic_score_corners(grid)
+
+        if heuristic == HeuristicScore.SNAKE:
+            return self.__heuristic_score_snake(grid)
+
+    def best_move_alphabeta(self, grid: Grid2048, heuristic: HeuristicScore):
         """
         Returns the best move according to alphabeta algorithm.
         """
         best_score = -math.inf
         best_move = None
+
+        depth = 5
+        if len(grid.get_empty_cells()) < 7:
+            depth = 7
 
         for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
             # Skip direction if not possible to move in this direction.
@@ -83,7 +144,7 @@ class Engine2048:
             grid_clone = grid.clone()
             grid_clone.move_dir(direction)
             # Get alphabeta score for this move.
-            score = self.__alphabeta(grid_clone, depth - 1, -math.inf, math.inf, False)
+            score = self.__alphabeta(grid_clone, depth - 1, -math.inf, math.inf, False, heuristic)
 
             if score > best_score:
                 best_score = score
@@ -91,12 +152,12 @@ class Engine2048:
 
         return best_move
 
-    def __alphabeta(self, grid: Grid2048, depth: int, alpha, beta, maximizing: bool):
+    def __alphabeta(self, grid: Grid2048, depth: int, alpha, beta, maximizing: bool, heuristic: HeuristicScore):
         """
         Returns best score for alphabeta algorithm.
         """
         if depth == 0:
-            return self.heuristic_score_weighted(grid)
+            return self.__heuristic_score(grid, heuristic)
 
         if maximizing:
             v = -math.inf
@@ -109,7 +170,7 @@ class Engine2048:
                 grid_clone = grid.clone()
                 grid_clone.move_dir(direction=direction)
 
-                v = max(v, self.__alphabeta(grid_clone, depth - 1, alpha, beta, False))
+                v = max(v, self.__alphabeta(grid_clone, depth - 1, alpha, beta, False, heuristic))
 
                 alpha = max(v, alpha)
                 if alpha >= beta:
@@ -127,7 +188,7 @@ class Engine2048:
                 grid_clone = grid.clone()
                 grid_clone.insert(x, y, val)
 
-                v = min(v, self.__alphabeta(grid_clone, depth - 1, alpha, beta, True))
+                v = min(v, self.__alphabeta(grid_clone, depth - 1, alpha, beta, True, heuristic))
 
                 beta = min(v, beta)
                 if alpha >= beta:
@@ -135,12 +196,16 @@ class Engine2048:
 
             return v
 
-    def best_move_expectimax(self, grid: Grid2048, depth: int):
+    def best_move_expectimax(self, grid: Grid2048, heuristic: HeuristicScore):
         """
         Returns the best move according to expectimax algorithm.
         """
         best_score = -math.inf
         best_move = None
+
+        depth = 4
+        if len(grid.get_empty_cells()) < 7:
+            depth = 6
 
         for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
             # Skip direction if not possible to move in this direction.
@@ -150,7 +215,7 @@ class Engine2048:
             grid_clone = grid.clone()
             grid_clone.move_dir(direction)
             # Get expectimax score for this move.
-            score = self.__expectimax(grid_clone, depth - 1, False)
+            score = self.__expectimax(grid_clone, depth - 1, False, heuristic)
 
             if score > best_score:
                 best_score = score
@@ -158,12 +223,13 @@ class Engine2048:
 
         return best_move
 
-    def __expectimax(self, grid: Grid2048, depth: int, player: bool):
+    def __expectimax(self, grid: Grid2048, depth: int, player: bool, heuristic: HeuristicScore):
         """
         Expectimax algorithm
         """
         if depth == 0:
-            return self.heuristic_score_weighted(grid)
+            return self.__heuristic_score(grid, heuristic)
+            # return self.__heuristic_score_corner(grid)
 
         if player:
             best_score = -math.inf
@@ -176,7 +242,7 @@ class Engine2048:
 
                 grid_clone = grid.clone()
                 grid_clone.move_dir(direction)
-                score = self.__expectimax(grid_clone, depth - 1, False)
+                score = self.__expectimax(grid_clone, depth - 1, False, heuristic)
 
                 if score > best_score:
                     best_score = score
@@ -192,7 +258,7 @@ class Engine2048:
                 # Insert a two.
                 grid_clone = grid.clone()
                 grid_clone.insert(x, y, 2)
-                temp_score = 0.9 * self.__expectimax(grid_clone, depth - 1, True)
+                temp_score = 0.9 * self.__expectimax(grid_clone, depth - 1, True, heuristic)
 
                 if temp_score > 0:
                     score += temp_score
@@ -200,7 +266,7 @@ class Engine2048:
                 # Insert a four.
                 grid_clone = grid.clone()
                 grid_clone.insert(x, y, 4)
-                temp_score = 0.1 * self.__expectimax(grid_clone, depth - 1, True)
+                temp_score = 0.1 * self.__expectimax(grid_clone, depth - 1, True, heuristic)
 
                 if temp_score > 0:
                     score += temp_score
