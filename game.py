@@ -81,39 +81,40 @@ class Game2048:
         Gets the parsed game and then runs the AI to get best move that will be used to move the
         game in the next direction.
         """
-        wins, scores = [], []
+        scores = []
+        wins = 0
 
         for i in range(nbr_runs):
 
             tiles = {}
 
             while True:
-                G = self.parse_web_content()
+                game = self.parse_web_content()
                 self.engine2048.bestMove = None
 
                 if not self.has_won_flag:
-                    if G.has_won():
+                    if game.has_won():
                         time.sleep(5)
                         self.browser.find_element_by_css_selector('.keep-playing-button').click()
                         time.sleep(5)
                         self.has_won_flag = True
-                        wins.append(1)
+                        wins += 1
 
                 time.sleep(0.1)
 
-                print("/////////////////////// Iteration", i, " Score", self.actual_score)
+                print("/////////////Iteration", i, " Score", self.actual_score, " Average", round(sum(scores) / (i + 1)))
 
                 # Find best move according to chosen algorithm.
                 best_move = None
 
                 if algorithm is Algorithm.ALPHABETA:
-                    best_move = self.engine2048.best_move_alphabeta(G, heuristic)
+                    best_move = self.engine2048.best_move_alphabeta(game, heuristic)
 
                 elif algorithm is Algorithm.EXPECTIMAX:
-                    best_move = self.engine2048.best_move_expectimax(G, heuristic)
+                    best_move = self.engine2048.best_move_expectimax(game, heuristic)
 
                 self.move_web_grid(best_move)
-                tiles = G.parse_tiles(tiles)
+                tiles = game.parse_tiles(tiles, 8)
 
                 time.sleep(0.1)
 
@@ -133,16 +134,29 @@ class Game2048:
                 time.sleep(2)
 
         print("///////////////// STATS ////////////////////////")
-        print("Number of wins ", sum(wins))
-        print("Win probability ", sum(wins) / nbr_runs)
+        print("Number of wins ", wins)
+        print("Win probability ", round(wins / nbr_runs, 2))
         print("smallest score", min(scores))
         print("Highest score ", max(scores))
-        print("Average score ", sum(scores) / nbr_runs)
+        print("Average score ", round(sum(scores) / nbr_runs))
         print("Scores", scores)
-        print("Wins", wins)
+
+        nbr_1024, nbr_2048, nbr_4096, nbr_8192 = 0, 0, 0, 0
 
         for i in range(nbr_runs):
-            print("Run ", i, self.tile_scores[i])
+            if 1024 in self.tile_scores[i]:
+                nbr_1024 += self.tile_scores[i][1024]
+            if 2048 in self.tile_scores[i]:
+                nbr_2048 += self.tile_scores[i][2048]
+            if 4096 in self.tile_scores[i]:
+                nbr_4096 += self.tile_scores[i][4096]
+            if 8192 in self.tile_scores[i]:
+                nbr_8192 += self.tile_scores[i][8192]
+
+        print("1024 reached : ", int(nbr_1024 / nbr_runs))
+        print("2048 reached : ", int(nbr_2048 / nbr_runs))
+        print("4096 reached : ", int(nbr_4096 / nbr_runs))
+        print("8192 reached : ", int(nbr_8192 / nbr_runs))
 
 
 """ MAIN PROGRAM --------------------------------- """
@@ -150,12 +164,12 @@ class Game2048:
 
 def main():
     game = Game2048()
-    runs = 1
+    runs = 50
     # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.CORNER)
     # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.CORNERS)
     # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.SNAKE)
-    game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNER)
-    # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNERS)
+    # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNER)
+    game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNERS)
     # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.SNAKE)
 
 

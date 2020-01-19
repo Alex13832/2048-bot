@@ -8,7 +8,7 @@ from grid import Grid2048
 class HeuristicScore(Enum):
     CORNER = 1,
     CORNERS = 2,
-    SNAKE = 3
+    SNAKE = 3,
 
 
 class Engine2048:
@@ -204,8 +204,10 @@ class Engine2048:
         best_move = None
 
         depth = 4
-        if len(grid.get_empty_cells()) < 7:
-            depth = 6
+        if heuristic is not HeuristicScore.SNAKE:
+
+            if len(grid.get_empty_cells()) < 7:
+                depth = 6
 
         for direction in [EMove.DOWN, EMove.RIGHT, EMove.LEFT, EMove.UP]:
             # Skip direction if not possible to move in this direction.
