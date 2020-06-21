@@ -10,6 +10,38 @@ To find out if an algorithm was performing well, each algorithm was executed man
 
 ![game2](images/game2048_2.png)
 
+## Run it on your computer
+
+Preferably, create a new virtual python environment and execute the following command in a
+terminal window:
+
+```bash
+pip install -r requirements.txt
+```
+
+If don't have Firefox installed, you must change the code in `game.py`:
+
+```python
+class Game2048:
+
+    def __init__(self):
+        self.browser = webdriver.Firefox(executable_path='/usr/local/bin/geckodriver')
+```
+
+to your own browser, such as Safari. However, Firefox is recommended.
+
+Note, the software has only been tested on Max OS X, but should work without any problem on Ubuntu.
+
+Run the AI with:
+
+```python
+python game.py
+```
+
+and you should see something like this:
+
+![game](images/game_terminal.png)
+
 ## Algorithms
 In this project, there are two algorithms available to solve the game, Alpha-beta pruning and Expectimax.
 They use heuristics, a computed score, as a way to measure how good a move is. For instance, if the AI has
