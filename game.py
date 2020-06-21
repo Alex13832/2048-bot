@@ -153,10 +153,10 @@ class Game2048:
             if 8192 in self.tile_scores[i]:
                 nbr_8192 += self.tile_scores[i][8192]
 
-        print("1024 reached : ", int(nbr_1024 / nbr_runs))
-        print("2048 reached : ", int(nbr_2048 / nbr_runs))
-        print("4096 reached : ", int(nbr_4096 / nbr_runs))
-        print("8192 reached : ", int(nbr_8192 / nbr_runs))
+        print("1024 reached : ", nbr_1024)
+        print("2048 reached : ", nbr_2048)
+        print("4096 reached : ", nbr_4096)
+        print("8192 reached : ", nbr_8192)
 
 
 """ MAIN PROGRAM --------------------------------- """
@@ -169,8 +169,8 @@ def main():
     # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.CORNERS)
     # game.run(nbr_runs=runs, algorithm=Algorithm.ALPHABETA, heuristic=HeuristicScore.SNAKE)
     # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNER)
-    game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNERS)
-    # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.SNAKE)
+    # game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.CORNERS)
+    game.run(nbr_runs=runs, algorithm=Algorithm.EXPECTIMAX, heuristic=HeuristicScore.SNAKE)
 
 
 if __name__ == '__main__':
