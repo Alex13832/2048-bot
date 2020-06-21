@@ -19,7 +19,7 @@ terminal window:
 pip install -r requirements.txt
 ```
 
-If don't have Firefox installed, you must change the code in `game.py`:
+If you don't have Firefox installed, you must change the code in `game.py`:
 
 ```python
 class Game2048:
