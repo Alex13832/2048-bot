@@ -1,5 +1,5 @@
-2048-AI
-===============
+:robot: 2048-AI
+=======
 
 This project aims to solve the 2048-game with AI. This game was a suitable candidate to start
 solving (video) games with AI. With the [Selenium](https://www.selenium.dev) it's easy to open the web-page
@@ -10,7 +10,7 @@ To find out if an algorithm was performing well, each algorithm was executed man
 
 ![game2](images/game2048_2.png)
 
-## Run it on your computer
+## Run it on your :computer:
 
 Preferably, create a new virtual python environment and execute the following command in a
 terminal window:
