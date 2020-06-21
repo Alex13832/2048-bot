@@ -16873,3 +16873,15 @@ JavaScript error: resource:///modules/BrowserUsageTelemetry.jsm, line 304: TypeE
 1579808576645	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: , line 0: uncaught exception: TagError: adsbygoogle.push() error: No slot size for availableWidth=0
 1579879291100	Marionette	INFO	Stopped listening on port 58452
+1592770630759	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/hj/q_ft4yfs5333psxl_gdg34d00000gn/T/rust_mozprofileHoeOJx"
+1592770636816	Marionette	INFO	Listening on port 64066
+1592770644007	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/hj/q_ft4yfs5333psxl_gdg34d00000gn/T/rust_mozprofileuLCzZQ"
+1592770646432	Marionette	INFO	Listening on port 64126
+1592770646459	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js, line 52: uncaught exception: TagError: adsbygoogle.push() error: No slot size for availableWidth=0
+Exiting due to channel error.
+[GFX1-]: Receive IPC close with reason=AbnormalShutdown
+[GFX1-]: Receive IPC close with reason=AbnormalShutdown
+Exiting due to channel error.
+Exiting due to channel error.
+1592770669879	Marionette	INFO	Stopped listening on port 64066
